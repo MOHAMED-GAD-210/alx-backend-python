@@ -8,6 +8,52 @@ DB_NAME = 'ALX_prodev'
 TABLE_NAME = 'user_data'
 
 
+def streamusersinbatches(batchsize):
+    """Generator to fetch rows in batches from user_data"""
+    try:
+        connection = mysql.connector.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=DB_NAME
+        )
+        cursor = connection.cursor(dictionary=True)
+        offset = 0
+        while True:
+            cursor.execute(f"SELECT * FROM user_data LIMIT {batchsize} OFFSET {offset};")
+            batch = cursor.fetchall()
+            if not batch:
+                break
+            for row in batch:
+                yield row
+            offset += batchsize
+        cursor.close()
+        connection.close()
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+
+def batch_processing(batchsize):
+    """Process each batch and filter users over the age of 25"""
+    for user in streamusersinbatches(batchsize):
+        if user['age'] > 25:
+            print(user)
+    return True
+
+
+
+
+
+#!/usr/bin/python3
+import mysql.connector
+
+DB_HOST = 'localhost'
+DB_USER = 'root'
+DB_PASSWORD = 'your_password'  # عدل الباسورد هنا
+DB_NAME = 'ALX_prodev'
+TABLE_NAME = 'user_data'
+
+
 def stream_users_in_batches(batch_size):
     """Generator to fetch rows in batches from user_data"""
     try:
